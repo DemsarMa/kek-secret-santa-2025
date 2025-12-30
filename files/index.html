@@ -334,12 +334,10 @@
         background: var(--card);
       }
 
-      /* Legacy selector removed: .front */
       .front {
         display: none;
       }
 
-      /* Front cover content */
       .coverText {
         color: rgba(0, 0, 0, 0.72);
         text-align: center;
@@ -378,12 +376,10 @@
         transform: translateZ(2px) rotateY(-160deg);
       }
 
-      /* Remove older cover rules (kept in file previously) */
       .front::before {
         content: none;
       }
 
-      /* (below was previously .front styling) */
       .front {
         display: grid;
         place-items: center;
@@ -549,7 +545,6 @@
           if (nextOpen) {
             if (isOpen) return;
 
-            // Open immediately (no delay)
             cardWrap.dataset.open = 'true';
             isOpen = true;
             document.body.classList.add('opened');
@@ -559,7 +554,6 @@
             return;
           }
 
-          // Close
           if (!isOpen) return;
 
           document.body.classList.remove('opening');
@@ -652,11 +646,9 @@
           const avoidCardPadding = 22;
           const maxAttemptsPerItem = 120;
 
-          // Fewer items on small screens; more on large.
           const area = vw * vh;
           const count = Math.max(10, Math.min(22, Math.round(area / 70000)));
 
-          // Compute the card's current on-screen rect and avoid it.
           const cardRectRaw = cardWrap?.getBoundingClientRect?.();
           const cardRect = cardRectRaw
             ? {
@@ -684,7 +676,6 @@
               const y = padding + Math.random() * (vh - padding * 2);
               const candidate = { x, y, w, h };
 
-              // Keep within viewport bounds.
               if (
                 x - w / 2 < 0 ||
                 x + w / 2 > vw ||
@@ -694,7 +685,6 @@
                 continue;
               }
 
-              // Avoid the card.
               if (cardRect && rectIntersects(candidate, cardRect)) {
                 continue;
               }
@@ -730,21 +720,17 @@
               break;
             }
 
-            // If we can't place without overlap, stop adding more.
             if (!placedThis) break;
           }
         }
 
-        // Click anywhere on the card to open/close.
         cardWrap.addEventListener('click', toggleCard);
 
-        // Click on the button also toggles, but don't double-toggle via bubbling.
         openBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           toggleCard();
         });
 
-        // Keyboard accessibility (Space / Enter)
         openBtn.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
@@ -752,7 +738,6 @@
           }
         });
 
-        // Wrapped-style recap slides: auto fade between pages, then reveal the card.
         const prefersReducedMotion = window.matchMedia(
           '(prefers-reduced-motion: reduce)'
         ).matches;
@@ -760,7 +745,6 @@
         if (!intro || recapPages.length === 0) {
           finishRecap();
         } else if (prefersReducedMotion) {
-          // No auto-slideshow for reduced motion: quickly show the first slide then reveal.
           setRecapPage(0);
           window.setTimeout(() => {
             finishRecap();
@@ -791,7 +775,6 @@
           advance();
         }
 
-        // Scatter decorations once layout is ready.
         requestAnimationFrame(() => {
           scatterKeks();
         });

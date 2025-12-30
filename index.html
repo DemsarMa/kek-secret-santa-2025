@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Christmas Greeting Card</title>
+    <style>
+      :root {
+        --bg: #2c3e50;
+        --card: #e0f7e9;
+        --ink: rgba(255, 255, 255, 0.92);
+        --shadow: rgba(0, 0, 0, 0.25);
+        --paper-ink: rgba(0, 0, 0, 0.72);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+      }
+
+      .decor {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+
+      .kek {
+        position: absolute;
+        user-select: none;
+        -webkit-user-drag: none;
+        opacity: 0.18;
+      }
+
+      .corner {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        width: min(160px, 28vw);
+        height: auto;
+        z-index: 1;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-drag: none;
+        opacity: 0.95;
+      }
+
+      .intro {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 28px;
+        background: var(--bg);
+        z-index: 10;
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 650ms ease, transform 650ms ease;
+      }
+
+      .intro.hide {
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+      }
+
+      .introCard {
+        width: min(680px, 92vw);
+        border-radius: 18px;
+        padding: clamp(14px, 3.2vw, 22px);
+        background: var(--card);
+        box-shadow: 0 22px 55px rgba(0, 0, 0, 0.22);
+        text-align: left;
+        color: var(--paper-ink);
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+        animation: introIn 650ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        transition: opacity 650ms ease, transform 650ms ease;
+      }
+
+      .intro.hide .introCard {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+      }
+
+      .introCard h1 {
+        margin: 0 0 12px;
+        font-size: clamp(1.4rem, 3.8vw, 2rem);
+        letter-spacing: 0.2px;
+      }
+
+      .introCard p {
+        margin: 0;
+        font-size: clamp(1rem, 2.4vw, 1.05rem);
+        line-height: 1.55;
+        opacity: 0.95;
+      }
+
+      .recapPages {
+        position: relative;
+        min-height: 170px;
+      }
+
+      .recapPage {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 520ms ease, transform 520ms ease;
+      }
+
+      .recapPage.is-active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .recapPage h2 {
+        margin: 0 0 10px;
+        font-size: clamp(1.25rem, 3.4vw, 1.7rem);
+        font-weight: 780;
+        color: rgba(0, 0, 0, 0.72);
+      }
+
+      .recapStat {
+        margin-top: 10px;
+        padding: 14px 14px;
+        border-radius: 14px;
+        background: var(--card);
+        background: color-mix(in srgb, var(--card) 92%, black);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: rgba(0, 0, 0, 0.72);
+      }
+
+      .recapStat .big {
+        display: block;
+        font-size: clamp(1.35rem, 4.2vw, 2rem);
+        font-weight: 900;
+        letter-spacing: 0.2px;
+        margin-bottom: 4px;
+      }
+
+      .recapStat .small {
+        display: block;
+        font-size: 0.98rem;
+        opacity: 0.9;
+        line-height: 1.35;
+      }
+
+      .stage {
+        position: relative;
+        width: min(520px, 92vw);
+        text-align: center;
+        z-index: 2;
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 700ms cubic-bezier(0.2, 0.8, 0.2, 1),
+          transform 700ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+
+      body.reveal .stage {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .title {
+        margin: 0 0 18px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 520ms ease, transform 520ms ease;
+      }
+
+      body.opened .title {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      body.opening .title {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      body.reveal .title {
+        animation: fadeUp 700ms 200ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+
+      .hint {
+        margin: 14px 0 0;
+        font-size: 0.95rem;
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity 520ms ease, transform 520ms ease;
+      }
+
+      body.opened .hint {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      body.opening .hint {
+        opacity: 0;
+        transform: translateY(-6px);
+      }
+
+      body.reveal .hint {
+        animation: fadeUp 650ms 650ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+
+      .hint[aria-hidden="true"] {
+        pointer-events: none;
+      }
+
+      .cardWrap {
+        perspective: 1200px;
+        width: min(460px, 90vw);
+        margin: 0 auto;
+        opacity: 0;
+        transform: translateY(18px) scale(0.96);
+      }
+
+      body.reveal .cardWrap {
+        animation: appear 850ms 320ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      }
+
+      .card3d {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 5 / 3.2;
+        transform-style: preserve-3d;
+      }
+
+      .panel {
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        background: var(--card);
+        box-shadow: 0 22px 55px var(--shadow);
+      }
+
+      .inside {
+        display: grid;
+        place-items: center;
+        padding: clamp(18px, 4vw, 34px);
+      }
+
+      .message {
+        width: 100%;
+        height: 100%;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.55);
+        color: var(--paper-ink);
+        display: grid;
+        place-items: center;
+        padding: clamp(16px, 3.5vw, 28px);
+        text-align: center;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: opacity 420ms ease, transform 420ms ease;
+      }
+
+      .message h2 {
+        margin: 0 0 10px;
+        font-size: clamp(1.25rem, 3.4vw, 1.8rem);
+        font-weight: 750;
+      }
+
+      .message p {
+        margin: 0;
+        font-size: clamp(1rem, 2.3vw, 1.1rem);
+        line-height: 1.4;
+      }
+
+      .cover {
+        position: absolute;
+        inset: 0;
+        transform-origin: left center;
+        transform: translateZ(2px) rotateY(0deg);
+        transition: transform 900ms cubic-bezier(0.2, 0.85, 0.2, 1);
+        transform-style: preserve-3d;
+      }
+
+      .frontFace {
+        display: grid;
+        place-items: center;
+        padding: clamp(18px, 4vw, 34px);
+        backface-visibility: hidden;
+      }
+
+      .frontBackFace {
+        backface-visibility: hidden;
+        transform: rotateY(180deg) translateZ(2px);
+      }
+
+      .frontFace::before {
+        content: "";
+        position: absolute;
+        inset: 10px;
+        border-radius: 14px;
+        border: 2px solid rgba(0, 0, 0, 0.08);
+        pointer-events: none;
+        backface-visibility: hidden;
+      }
+
+      .frontBackFace::before {
+        content: "";
+        position: absolute;
+        inset: 10px;
+        border-radius: 14px;
+        border: 2px solid rgba(0, 0, 0, 0.06);
+        pointer-events: none;
+      }
+
+      .frontFace {
+        transform: translateZ(2px);
+      }
+
+      .frontBackFace {
+        background: var(--card);
+      }
+
+      /* Legacy selector removed: .front */
+      .front {
+        display: none;
+      }
+
+      /* Front cover content */
+      .coverText {
+        color: rgba(0, 0, 0, 0.72);
+        text-align: center;
+        max-width: 26ch;
+      }
+
+      .coverText .big {
+        display: block;
+        font-size: clamp(1.35rem, 4vw, 2rem);
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        margin-bottom: 6px;
+      }
+
+      .coverText .small {
+        display: block;
+        font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+        opacity: 0.92;
+      }
+
+      .openButton {
+        all: unset;
+        position: absolute;
+        inset: 0;
+        cursor: pointer;
+        border-radius: 18px;
+        outline: none;
+      }
+
+      .openButton:focus-visible {
+        outline: 3px solid rgba(255, 255, 255, 0.75);
+        outline-offset: 6px;
+      }
+
+      .cardWrap[data-open="true"] .cover {
+        transform: translateZ(2px) rotateY(-160deg);
+      }
+
+      /* Remove older cover rules (kept in file previously) */
+      .front::before {
+        content: none;
+      }
+
+      /* (below was previously .front styling) */
+      .front {
+        display: grid;
+        place-items: center;
+        padding: clamp(18px, 4vw, 34px);
+      }
+
+      .cardWrap[data-open="true"] .message {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 260ms;
+      }
+
+      @keyframes appear {
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes fadeUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes introIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .cardWrap,
+        .title,
+        .hint {
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+
+        .intro {
+          transition: none;
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+
+        .stage {
+          transition: none;
+        }
+
+        .front {
+          transition: none;
+        }
+
+        .message {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="decor" id="decor" aria-hidden="true"></div>
+    <img class="corner" src="corner.png" alt="" aria-hidden="true" />
+
+    <section class="intro" id="intro" aria-label="Year recap">
+      <div class="introCard">
+        <div class="recapPages" id="recapPages" aria-live="polite">
+          <section class="recapPage is-active" data-recap-page="0" aria-hidden="false">
+            <h1>2025 Recap</h1>
+            <p>
+              A year of small wins, new lessons, and moments that mattered.<br />
+              Here’s to everything you’ve built—step by step.<br />
+              Take a breath…your recap is next.
+            </p>
+          </section>
+
+          <section class="recapPage" data-recap-page="1" aria-hidden="true">
+            <h2>In 2025, you spent</h2>
+            <div class="recapStat">
+              <span class="big">40000k hours coding</span>
+              <span class="small">And yet you still didn't bring Kekbot to AU /j (whentm)</span>
+            </div>
+          </section>
+
+          <section class="recapPage" data-recap-page="2" aria-hidden="true">
+            <h2>Yu heb spoken</h2>
+            <div class="recapStat">
+              <span class="big">kountles things in kekspeek</span>
+              <span class="small">no wan will be bettr at speeking kekspeek than u.</span>
+            </div>
+          </section>
+
+          <section class="recapPage" data-recap-page="3" aria-hidden="true">
+            <h2>Encore for 2026</h2>
+            <div class="recapStat">
+              <span class="big">Moar coding</span>
+              <span class="small">Moar Kekbot. Moar MC. Moar kekspeeeeek.</span>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <main class="stage" aria-hidden="true" id="stage">
+      <h1 class="title">Your personalzed card</h1>
+
+      <section class="cardWrap" id="card" data-open="false">
+        <div class="card3d" aria-label="Greeting card">
+          <div class="panel inside" aria-hidden="true">
+            <div class="message" id="message" aria-live="polite">
+              <div>
+                <h2>Merry Christmas and a Happy New Year!</h2>
+                <p>
+                  Wishing you a cozy holiday season<br />
+                  and a bright, peaceful New Year.<br />
+                  May there be lots of coding and kekspeek in 2026!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="cover" aria-hidden="true">
+            <div class="panel frontFace" aria-hidden="true">
+              <div class="coverText">
+                <span class="big">OwO what's this</span>
+                <span class="small">Tap / click to open</span>
+              </div>
+              <button
+                class="openButton"
+                id="openBtn"
+                type="button"
+                aria-label="Open the Christmas greeting card"
+              ></button>
+            </div>
+
+            <div class="panel frontBackFace" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <p class="hint" id="hint">Click the card to open it.</p>
+    </main>
+
+    <script>
+      (function () {
+        const decor = document.getElementById('decor');
+        const intro = document.getElementById('intro');
+        const stage = document.getElementById('stage');
+        const cardWrap = document.getElementById('card');
+        const openBtn = document.getElementById('openBtn');
+        const hint = document.getElementById('hint');
+
+        const recapPages = Array.from(document.querySelectorAll('[data-recap-page]'));
+        let recapIndex = 0;
+
+        let isOpen = false;
+
+        function setOpen(nextOpen) {
+          if (nextOpen) {
+            if (isOpen) return;
+
+            // Open immediately (no delay)
+            cardWrap.dataset.open = 'true';
+            isOpen = true;
+            document.body.classList.add('opened');
+            document.body.classList.remove('opening');
+            hint.setAttribute('aria-hidden', 'true');
+            openBtn.setAttribute('aria-label', 'Close the Christmas greeting card');
+            return;
+          }
+
+          // Close
+          if (!isOpen) return;
+
+          document.body.classList.remove('opening');
+          document.body.classList.remove('opened');
+          cardWrap.dataset.open = 'false';
+          isOpen = false;
+          hint.removeAttribute('aria-hidden');
+          openBtn.setAttribute('aria-label', 'Open the Christmas greeting card');
+        }
+
+        function toggleCard() {
+          setOpen(!isOpen);
+        }
+
+        function setRecapPage(nextIndex) {
+          const maxIndex = Math.max(0, recapPages.length - 1);
+          recapIndex = Math.min(maxIndex, Math.max(0, nextIndex));
+
+          recapPages.forEach((page, idx) => {
+            const active = idx === recapIndex;
+            page.classList.toggle('is-active', active);
+            page.setAttribute('aria-hidden', active ? 'false' : 'true');
+          });
+        }
+
+        function finishRecap() {
+          const prefersReducedMotion = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+          ).matches;
+          const fadeMs = prefersReducedMotion ? 0 : 650;
+
+          if (!intro) {
+            document.body.classList.add('reveal');
+            stage?.removeAttribute('aria-hidden');
+            return;
+          }
+
+          intro.classList.add('hide');
+          window.setTimeout(() => {
+            intro.remove();
+            document.body.classList.add('reveal');
+            stage?.removeAttribute('aria-hidden');
+          }, fadeMs);
+        }
+
+        function preloadImage(src) {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              const w = img.naturalWidth || 1;
+              const h = img.naturalHeight || 1;
+              resolve({ width: w, height: h, ratio: w / h });
+            };
+            img.onerror = () => resolve({ width: 1, height: 1, ratio: 1 });
+            img.src = src;
+          });
+        }
+
+        function rectsOverlap(a, b, gap) {
+          return (
+            Math.abs(a.x - b.x) < (a.w + b.w) / 2 + gap &&
+            Math.abs(a.y - b.y) < (a.h + b.h) / 2 + gap
+          );
+        }
+
+        function rectIntersects(candidate, rect) {
+          const left = candidate.x - candidate.w / 2;
+          const right = candidate.x + candidate.w / 2;
+          const top = candidate.y - candidate.h / 2;
+          const bottom = candidate.y + candidate.h / 2;
+
+          return !(
+            right < rect.left ||
+            left > rect.right ||
+            bottom < rect.top ||
+            top > rect.bottom
+          );
+        }
+
+        async function scatterKeks() {
+          if (!decor) return;
+
+          const { ratio } = await preloadImage('kek_best.png');
+
+          const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+          const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+
+          const padding = 28;
+          const gap = 12;
+          const avoidCardPadding = 22;
+          const maxAttemptsPerItem = 120;
+
+          // Fewer items on small screens; more on large.
+          const area = vw * vh;
+          const count = Math.max(10, Math.min(22, Math.round(area / 70000)));
+
+          // Compute the card's current on-screen rect and avoid it.
+          const cardRectRaw = cardWrap?.getBoundingClientRect?.();
+          const cardRect = cardRectRaw
+            ? {
+                left: Math.max(0, cardRectRaw.left - avoidCardPadding),
+                right: Math.min(vw, cardRectRaw.right + avoidCardPadding),
+                top: Math.max(0, cardRectRaw.top - avoidCardPadding),
+                bottom: Math.min(vh, cardRectRaw.bottom + avoidCardPadding),
+              }
+            : null;
+
+          decor.innerHTML = '';
+          const placed = [];
+
+          for (let i = 0; i < count; i++) {
+            let placedThis = false;
+
+            for (let attempt = 0; attempt < maxAttemptsPerItem; attempt++) {
+              const width = 60 + Math.random() * 120;
+              const scale = 0.8 + Math.random() * 0.55;
+              const rotInflate = 1.18;
+              const w = width * scale * rotInflate;
+              const h = (width / Math.max(ratio, 0.01)) * scale * rotInflate;
+
+              const x = padding + Math.random() * (vw - padding * 2);
+              const y = padding + Math.random() * (vh - padding * 2);
+              const candidate = { x, y, w, h };
+
+              // Keep within viewport bounds.
+              if (
+                x - w / 2 < 0 ||
+                x + w / 2 > vw ||
+                y - h / 2 < 0 ||
+                y + h / 2 > vh
+              ) {
+                continue;
+              }
+
+              // Avoid the card.
+              if (cardRect && rectIntersects(candidate, cardRect)) {
+                continue;
+              }
+
+              // Avoid other keks.
+              let overlaps = false;
+              for (const r of placed) {
+                if (rectsOverlap(candidate, r, gap)) {
+                  overlaps = true;
+                  break;
+                }
+              }
+              if (overlaps) continue;
+
+              const img = document.createElement('img');
+              img.className = 'kek';
+              img.src = 'kek_best.png';
+              img.alt = '';
+              img.setAttribute('aria-hidden', 'true');
+
+              const rot = -55 + Math.random() * 110;
+              const opacity = 0.12 + Math.random() * 0.16;
+
+              img.style.width = `${width}px`;
+              img.style.left = `${x}px`;
+              img.style.top = `${y}px`;
+              img.style.opacity = `${opacity}`;
+              img.style.transform = `translate(-50%, -50%) rotate(${rot}deg) scale(${scale})`;
+
+              decor.appendChild(img);
+              placed.push(candidate);
+              placedThis = true;
+              break;
+            }
+
+            // If we can't place without overlap, stop adding more.
+            if (!placedThis) break;
+          }
+        }
+
+        // Click anywhere on the card to open/close.
+        cardWrap.addEventListener('click', toggleCard);
+
+        // Click on the button also toggles, but don't double-toggle via bubbling.
+        openBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleCard();
+        });
+
+        // Keyboard accessibility (Space / Enter)
+        openBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleCard();
+          }
+        });
+
+        // Wrapped-style recap slides: auto fade between pages, then reveal the card.
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+
+        if (!intro || recapPages.length === 0) {
+          finishRecap();
+        } else if (prefersReducedMotion) {
+          // No auto-slideshow for reduced motion: quickly show the first slide then reveal.
+          setRecapPage(0);
+          window.setTimeout(() => {
+            finishRecap();
+          }, 400);
+        } else {
+          const slideHoldMs = 5000;
+          const slideFadeMs = 520;
+          const totalSlides = recapPages.length;
+
+          setRecapPage(0);
+
+          let slideTimer = null;
+          function advance() {
+            const isLast = recapIndex >= totalSlides - 1;
+            if (isLast) {
+              window.setTimeout(() => {
+                finishRecap();
+              }, slideHoldMs);
+              return;
+            }
+
+            slideTimer = window.setTimeout(() => {
+              setRecapPage(recapIndex + 1);
+              advance();
+            }, slideHoldMs + slideFadeMs);
+          }
+
+          advance();
+        }
+
+        // Scatter decorations once layout is ready.
+        requestAnimationFrame(() => {
+          scatterKeks();
+        });
+
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+          if (resizeTimer) window.clearTimeout(resizeTimer);
+          resizeTimer = window.setTimeout(() => {
+            scatterKeks();
+          }, 120);
+        });
+
+      })();
+    </script>
+  </body>
+</html>
